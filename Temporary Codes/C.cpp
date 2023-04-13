@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define ll long long
-#define pii pair<ll,ll>
+#define pii pair<int,int>
 #define f first
 #define s second
 #define all(x) x.begin(),x.end()
@@ -13,48 +13,49 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-int main() {_
-    ll n,k;
-    cin>>n>>k;
-    ll a[n+1];
-    ll b[n+1];
-    for(ll i=1;i<=n;i++){
-        cin>>a[i];
+int dx[4]={0,0,1,-1};
+int dy[4]={1,-1,0,0};
+
+void solve(){
+    string str[5];
+    for(int i=0;i<5;i++){
+        for(int j=0;j<7;j++){
+            cin>>str[i][j];
+        }
     }
-    for(ll i=1;i<=n;i++){
-        cin>>b[i];
+    string ans[5];
+    for(int i=0;i<5;i++){
+        for(int j=0;j<7;j++){
+            ans[i][j]='0';
+        }
     }
-    ll c[k+1];
-    c[0]=0;
-    for(ll i=1;i<=k;i++){
-        cin>>c[i];
-    }
-    sort(c+1,c+k+1);
-    ll ans=0;
-    for(ll i=1;i<=k;i++){
-        priority_queue<ll,vector<ll>,greater<ll>> pq;
-        ll sum=0;
-        for(ll j=c[i-1]+1;j<=c[i];j++){
-            sum+=a[j];
-            sum-=b[j];
-            if(b[j]>0) pq.push(b[j]);
-            while(sum<0){
-                ll v=pq.top();
-                pq.pop();
-                if(sum+v>0){
-                    pq.push(v+sum);
-                    sum=0;
-                }else sum+=v;
+    for(int i=1;i<5;i++){
+        for(int j=0;j<7;j++){
+            if(str[i-1][j]=='1'){
+                ans[i][j]='1';
+                for(int k=0;k<4;k++){
+                    int x=i+dx[k];
+                    int y=j+dy[k];
+                    if(x>=0 and x<5 and y>=0 and y<7){
+                        if(str[x][y]=='1') str[x][y]='0';
+                        else str[x][y]='1';
+                    }
+                }
             }
         }
-        ans+=(ll)pq.size();
-        if(sum>0){
-            cout<<-1;
-            return 0;
-        }
-        //cout<<ans<<' ';
     }
-    cout<<ans;
+    for(int i=0;i<5;i++){
+        for(int j=0;j<7;j++){
+            cout<<ans[i][j]<<' ';
+        }
+        cout<<'\n';
+    }
+}
+
+int main() {_
+    int t;
+    cin>>t;
+    while(t--) solve();
     return 0;
 }
 //maybe its multiset not set
