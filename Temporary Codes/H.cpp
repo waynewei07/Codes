@@ -1,4 +1,4 @@
-#pragma GCC optimize("O3")
+#pragma GCC optimize("O4")
 #include <bits/stdc++.h>
 using namespace std;
 #define ll long long
@@ -13,42 +13,94 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-const int mxn=2e5+5;
-ll dp[mxn];
-ll tmp[mxn];
-ll a[mxn];
-ll pre[mxn];
+int n;
+vector<pair<int,int>> vec;
+
+int check(int x,int y){
+    int a1=0,a2=0,a3=0,a4=0;
+    for(int i=0;i<n;i++){
+        if(vec[i].f>x and vec[i].s>y) a1++;
+        else if(vec[i].f>x and vec[i].s<y) a2++;
+        else if(vec[i].f<x and vec[i].s>y) a3++;
+        else a4++;
+    }
+    return max({a1,a2,a3,a4});
+}
+
+int f(int v){
+    //cout<<v<<'\n';
+    int l=0,r=5e5+5;
+    while(l<r){
+        //cout<<l<<' '<<r<<'\n';
+        if(l==r-1){
+            if(check(v*2,r*2)<=check(v*2,l*2)){
+                l++;
+            }
+            else{
+                r--;
+            }
+            continue;
+        }
+        int tl=(l+r)/2;
+        int tr=(tl+r)/2;
+        if(tl==r-1){
+            if(check(v*2,r*2)>=check(v*2,l*2)){
+                r=tl;
+            }
+            else{
+                l=tl;
+            }
+            continue;
+        }
+        if(check(v*2,tr*2)>=check(v*2,tl*2)){
+            r=tr;
+        }
+        else{
+            l=tl;
+        }
+    }
+    return check(v*2,l*2);
+}
 
 int main() {_
-    int n,m,k;
-    cin>>n>>m>>k;
-    for(int i=1;i<=n;i++){
-        cin>>a[i];
-        pre[i]=pre[i-1]+a[i];
+    setIO("balancing");
+    cin>>n;
+    for(int i=0;i<n;i++){
+        int x,y;
+        cin>>x>>y;
+        vec.push_back({x,y});
     }
-    ll ans=0;
-    for(int j=1;j<=m;j++){
-        deque<int> q;
-        q.push_back(0);
-        for(int i=1;i<=n;i++){
-            while(!q.empty() and dp[i]-pre[i]>=dp[q.back()]-pre[q.back()]){
-                q.pop_back();
+    int l=0,r=5e5+5;
+    while(l<r){
+        if(l==r-1){
+            if(f(r)<=f(l)){
+                l++;
             }
-            q.push_back(i);
-            while(!q.empty() and pre[i]-pre[q.front()]>k){
-                q.pop_front();
+            else{
+                r--;
             }
-            tmp[i]=tmp[i-1];
-            if(!q.empty()){
-                tmp[i]=max(tmp[i],dp[q.front()]+pre[i]-pre[q.front()]);
-            }
+            continue;
         }
-        for(int i=1;i<=n;i++){
-            dp[i]=tmp[i];
-            ans=max(ans,dp[i]);
+        int tl=(l+r)/2;
+        int tr=(tl+r)/2;
+        if(tl==r-1){
+            if(f(r)>=f(l)){
+                r=tl;
+            }
+            else{
+                l=tl;
+            }
+            continue;
+        }
+        if(f(tr)>=f(tl)){
+            r=tr;
+        }
+        else{
+            l=tl;
         }
     }
-    cout<<ans;
+    //cout<<l*2<<'\n';
+    cout<<f(l);
     return 0;
 }
 //maybe its multiset not set
