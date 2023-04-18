@@ -13,14 +13,8 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-random_device seed;
-mt19937 rng(seed());
-
 int main() {_
-    cout<<1000<<'\n';
-    for(int i=0;i<1000;i++){
-        cout<<abs((int)rng())<<' ';
-    }
+
     return 0;
 }
 //maybe its multiset not set
