@@ -1,8 +1,8 @@
-//#pragma GCC optimize("O3")
+#pragma GCC optimize("O3","unroll-loops")
 #include <bits/stdc++.h>
 using namespace std;
 #define ll long long
-#define pii pair<ll,ll>
+#define pii pair<int,int>
 #define f first
 #define s second
 #define all(x) x.begin(),x.end()
@@ -13,127 +13,82 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-const ll mxn=1e5+5;
-vector<ll> adj[mxn];
-vector<pair<ll,ll>> queries;
-vector<pair<ll,ll>> g[mxn];
-bool visited[mxn];
-ll n=0;
-ll cnt=0;
-ll sz[mxn];
-pair<ll,ll> fir[mxn],sec[mxn];
+const int mxn=1e5+5;
+int n;
+ll dp[mxn];
+int a[mxn];
+int d;
+int st;
 
-ll dfs(ll v,ll p=0){
-    sz[v]=1;
-    for(auto u:adj[v]){
-        if(u==p or visited[u]) continue;
-        sz[v]+=dfs(u,v);
-    }
-    return sz[v];
+void go(int l,int r,int tl,int tr){
+	if(l>r)	return;
+	int mid=(l+r)/2;
+	priority_queue<int,vector<int>,greater<int>> pq;
+	int len=0;
+	ll sum=0;
+	for(int i=mid;i>tr;i--){
+		if(i!=mid){
+            len++;
+            if(i<st) len++;
+		}
+		pq.push(a[i]);
+		sum+=a[i];
+		while(!pq.empty() and (int)pq.size()>(d-len)){
+			sum-=pq.top();
+			pq.pop();
+		}
+	}
+	int best=tr;
+	for(int i=tr;i>=tl;i--){
+		if(i!=mid){
+            len++;
+            if(i<st) len++;
+		}
+		pq.push(a[i]);
+		sum+=a[i];
+		while(!pq.empty() and (int)pq.size()>(d-len)){
+			sum-=pq.top();
+			pq.pop();
+		}
+		if(sum>dp[mid]){
+			dp[mid]=sum;
+			best=i;
+		}
+	}
+	go(l,mid-1,tl,best);
+	go(mid+1,r,best,tr);
 }
 
-ll find(ll v,ll mx,ll p=0){
-    for(auto u:adj[v]){
-        if(u==p or visited[u]) continue;
-        if(sz[u]*2>mx) return find(u,mx,v);
-    }
-    return v;
-}
-
-void dfs2(ll v,ll pp,ll p=0,ll d=0){
-    g[v].push_back({pp,d});
-    for(auto u:adj[v]){
-        if(u==p or visited[u]) continue;
-        dfs2(u,pp,v,d+1);
-    }
-}
-
-void centroid(ll v){
-    v=find(v,dfs(v));
-    //cout<<v<<'\n';
-    dfs2(v,v);
-    visited[v]=true;
-    for(auto u:adj[v]){
-        if(!visited[u]) centroid(u);
-    }
-}
-
-void sir(pair<ll,ll> p,ll v){
-    if(v==fir[p.f].f){
-        fir[p.f].s=max(fir[p.f].s,p.s);
-    }
-    else if(v==sec[p.f].f){
-        sec[p.f].s=max(sec[p.f].s,p.s);
-        if(sec[p.f].s>fir[p.f].s) swap(sec[p.f],fir[p.f]);
-    }
-    else{
-        if(p.s>fir[p.f].s){
-            sec[p.f]=fir[p.f];
-            fir[p.f]={v,p.s};
-        }
-        else if(p.s>sec[p.f].s){
-            sec[p.f]={v,p.s};
-        }
-    }
-}
-
-void update(ll v){
-    int prv=-1;
-    for(ll i=g[v].size()-1;i>=0;i--){
-        sir(g[v][i],prv);
-        prv=g[v][i].f;
-    }
-}
-
-ll query(ll v){
-    ll ans=0;
-    int prv=-1;
-    for(ll i=g[v].size()-1;i>=0;i--){
-        if(g[v][i].f<=cnt){
-            if(fir[g[v][i].f].f!=prv){
-                ans=max(ans,g[v][i].s+fir[g[v][i].f].s);
-            }
-            else if(sec[g[v][i].f].f!=prv){
-                ans=max(ans,g[v][i].s+sec[g[v][i].f].s);
-            }
-        }
-        prv=g[v][i].f;
-    }
+long long findMaxAttraction(int N, int start, int D, int attraction[]) {
+	d=D;
+	n=N;
+	st=start;
+	for(int i=0;i<n;i++){
+		a[i]=attraction[i];
+	}
+	go(st,n-1,0,st);
+	ll ans=dp[st];
+	dp[st]=0;
+	reverse(a,a+n);
+	reverse(dp,dp+n);
+	st=n-st-1;
+	go(st,n-1,0,st);
+	for(int i=0;i<n;i++){
+		//cout<<dp[i]<<' ';
+		ans=max(ans,dp[i]);
+	}
     return ans;
 }
 
-int main() {_
-    setIO("newbarn");
-    ll q;
-    cin>>q;
-    for(ll i=0;i<q;i++){
-        char c;
-        ll a;
-        cin>>c>>a;
-        if(c=='B'){
-            n++;
-            if(a!=-1){
-                adj[a].push_back(n);
-                adj[n].push_back(a);
-            }
-        }
-        queries.push_back({(c=='B'?1:-1),a});
-    }
-    for(int i=1;i<=n;i++){
-        if(!visited[i]) centroid(i);
-    }
-    for(ll i=1;i<=n;i++){
-        fir[i]=sec[i]={-1,-1e9};
-    }
-    for(auto v:queries){
-        if(v.f==1){
-            cnt++;
-            update(cnt);
-        }
-        else{
-            cout<<query(v.s)<<'\n';
-        }
-    }
+signed main() {_
+    auto S=clock();
+	int q,qq,qqq;
+	cin>>q>>qq>>qqq;
+	int qqqq[q];
+	for(int i=0;i<q;i++){
+		cin>>qqqq[i];
+	}
+	cout<<findMaxAttraction(q,qq,qqq,qqqq);
     return 0;
 }
 //maybe its multiset not set
