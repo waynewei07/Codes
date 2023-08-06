@@ -14,7 +14,8 @@ void setIO(string s) {
 }
 
 int main() {_
-
+    cout<<300*300*20*20*20*2;
     return 0;
 }
 //maybe its multiset not set
+

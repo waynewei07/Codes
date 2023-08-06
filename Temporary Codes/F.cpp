@@ -14,43 +14,67 @@ void setIO(string s) {
 }
 
 void solve(){
-    ll n;
+    int n;
     cin>>n;
-    ll cur=0;
-    vector<int> vec(n,-1);
-    int record=-1;
-    for(int i=1;i<=10000;i++){
-        if(i<10) cur=(cur*10%n+i)%n;
-        else if(i<100) cur=(cur*100%n+i)%n;
-        else if(i<1000) cur=(cur*1000%n+i)%n;
-        else if(i<10000) cur=(cur*10000%n+i)%n;
-        if(vec[cur]!=-1){
-            record=i;
-            break;
+    vector<int> a(n);
+    for(int i=0;i<n;i++){
+        cin>>a[i];
+    }
+    int mx=*max_element(all(a));
+    int mn=*min_element(all(a));
+    int mxpos=max_element(all(a))-a.begin();
+    int mnpos=min_element(all(a))-a.begin();
+    set<pair<int,int>> S;
+    for(int i=0;i<n;i++){
+        S.insert({a[i],i});
+    }
+    int ans=0;
+    vector<pair<int,int>> vec;
+    if(abs(mx)>=abs(mn)){
+        for(int i=1;i<n;i++){
+            while(a[i]<a[i-1]){
+                auto it=S.lower_bound({a[i-1]-a[i],-1});
+                if(it==S.end()) it--;
+                vec.push_back({i,(*it).s});
+                int val=(*it).f;
+                S.erase({a[i],i});
+                a[i]+=val;
+                S.insert({a[i],i});
+                ans++;
+            }
         }
-        vec[cur]=i;
+        cout<<ans<<'\n';
+        for(auto v:vec){
+            cout<<v.f+1<<' '<<v.s+1<<'\n';
+        }
     }
-    if(record==-1){
-        cout<<"NO"<<'\n';
-        return;
+    else{
+        for(int i=n-2;i>=0;i--){
+            while(a[i]>a[i+1]){
+                auto it=S.upper_bound({a[i+1]-a[i],n});
+                if(it!=S.begin()) it--;
+                vec.push_back({i,(*it).s});
+                int val=(*it).f;
+                S.erase({a[i],i});
+                a[i]+=val;
+                S.insert({a[i],i});
+                ans++;
+            }
+        }
+        cout<<ans<<'\n';
+        for(auto v:vec){
+            cout<<v.f+1<<' '<<v.s+1<<'\n';
+        }
     }
-    cout<<"YES"<<'\n';
-    int a=vec[cur];
-    int b=record;
-    for(int i=1;i<=a;i++){
-        cout<<i;
-    }
-    cout<<' ';
-    for(int i=1;i<=b;i++){
-        cout<<i;
-    }
-    cout<<'\n';
 }
 
 int main() {_
     int t;
     cin>>t;
-    while(t--) solve();
+    while(t--){
+        solve();
+    }
     return 0;
 }
 //maybe its multiset not set
+

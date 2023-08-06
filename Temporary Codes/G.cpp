@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define ll long long
-#define pii pair<int,int>
+#define pii pair<ll,ll>
 #define f first
 #define s second
 #define all(x) x.begin(),x.end()
@@ -13,58 +13,140 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-const int mxn=2e5+5;
-vector<int> adj[mxn];
-bool visited[mxn];
-int sz[mxn];
-int n,k;
-int cnt[mxn];
-ll ans=0;
+ll sum1[1<<23],sum2[1<<23];
 
-int dfs(int v,int p=0){
-    sz[v]=1;
-    for(auto u:adj[v]){
-        if(u==p or visited[u]) continue;
-        sz[v]+=dfs(u,v);
-    }
-    return sz[v];
+ll chmax1(ll a,ll b){
+    return ((sum1[a]>sum1[b])?a:b);
 }
 
-void dfs2(int v,int p,int pp,int d=0){
-    g[v].push_back({pp,d});
-    for(auto u:adj[v]){
-        if(u==p or visited[u]) continue;
-        dfs2(u,v,pp,d+1);
-    }
-}
-
-int find(int v,int mx,int p=0){
-    for(auto u:adj[v]){
-        if(u==p or visited[u]) continue;
-        if(sz[u]*2>mx) return find(u,mx,v);
-    }
-    return v;
-}
-
-void centroid(int v=1){
-    v=find(v,dfs(v));
-    dfs2(v,0,v);
-    visited[v]=true;
-    for(auto u:adj[v]){
-        if(!visited[u]) centroid(u);
-    }
+ll chmax2(ll a,ll b){
+    return ((sum2[a]>sum2[b])?a:b);
 }
 
 int main() {_
-    cin>>n>>k;
-    for(int i=0;i<n-1;i++){
-        int a,b;
-        cin>>a>>b;
-        adj[a].push_back(b);
-        adj[b].push_back(a);
+    ll n,m,k;
+    cin>>n>>m>>k;
+    ll n1=k/2;
+    ll n2=k-n1;
+    ll A[n];
+    for(ll i=0;i<n;i++){
+        cin>>A[i];
+        A[i]--;
     }
-    centroid();
-    cout<<ans;
+    vector<ll> aa(n1,(1<<n1)-1),ab(n1,(1<<n2)-1),bb(n2,(1<<n2)-1);
+    for(ll i=0;i<m;i++){
+        ll a,b;
+        cin>>a>>b;
+        a--;
+        b--;
+        a=A[a];
+        b=A[b];
+        if(a==b) continue;
+        if(a>b) swap(a,b);
+        if(a<n1){
+            if(b<n1){
+                if(aa[a]&(1<<b)) aa[a]^=(1<<b);
+                if(aa[b]&(1<<a)) aa[b]^=(1<<a);
+            }
+            else{
+                if(ab[a]&(1<<(b-n1))) ab[a]^=(1<<(b-n1));
+            }
+        }
+        else{
+            if(bb[a-n1]&(1<<(b-n1))) bb[a-n1]^=(1<<(b-n1));
+            if(bb[b-n1]&(1<<(a-n1))) bb[b-n1]^=(1<<(a-n1));
+        }
+    }
+    for(ll i=0;i<n1;i++){
+        aa[i]^=(1<<i);
+    }
+    for(ll i=0;i<n2;i++){
+        bb[i]^=(1<<i);
+    }
+    /*for(ll i=0;i<n1;i++){
+        cout<<i<<'\n';
+        for(ll j=0;j<n1;j++){
+            if(aa[i]&(1<<j)){
+                cout<<j<<' ';
+            }
+        }
+        cout<<'\n';
+    }
+    for(ll i=0;i<n2;i++){
+        cout<<i<<'\n';
+        for(ll j=0;j<n2;j++){
+            if(bb[i]&(1<<j)){
+                cout<<j<<' ';
+            }
+        }
+        cout<<'\n';
+    }
+    for(ll i=0;i<n1;i++){
+        cout<<i<<'\n';
+        for(ll j=0;j<n2;j++){
+            if(ab[i]&(1<<j)){
+                //cout<<j<<' ';
+            }
+        }
+        //cout<<'\n';
+    }*/
+    vector<ll> c1(n1),c2(n2);
+    for(ll i=0;i<n1;i++){
+        cin>>c1[i];
+    }
+    for(ll i=0;i<n2;i++){
+        cin>>c2[i];
+    }
+    //cout<<'\n';
+    for(ll s=1;s<(1<<n1);s++){
+        for(ll i=0;i<n1;i++){
+            if(s&(1<<i)){
+                sum1[s]+=c1[i];
+            }
+        }
+    }
+    for(ll s=1;s<(1<<n2);s++){
+        for(ll i=0;i<n2;i++){
+            if(s&(1<<i)){
+                sum2[s]+=c2[i];
+            }
+        }
+    }
+    vector<ll> dp1(1<<n1),dp2(1<<n2);
+    for(ll s=1;s<(1<<n1);s++){
+        for(ll i=0;i<n1;i++){
+            if(s&(1<<i)){
+                //cout<<i<<' ';
+                dp1[s]=chmax1(dp1[s],dp1[s^(1<<i)]);
+                dp1[s]=chmax1(dp1[s],dp1[(s^(1<<i))&(aa[i])]|(1<<i));
+            }
+        }
+        //cout<<'\n';
+        //cout<<dp1[s]<<'\n';
+    }
+    for(ll s=1;s<(1<<n2);s++){
+        for(ll i=0;i<n2;i++){
+            if(s&(1<<i)){
+                //cout<<i<<' ';
+                dp2[s]=chmax2(dp2[s],dp2[s^(1<<i)]);
+                dp2[s]=chmax2(dp2[s],dp2[(s^(1<<i))&(bb[i])]|(1<<i));
+            }
+        }
+        //cout<<'\n';
+        //cout<<dp2[s]<<'\n';
+    }
+    ll ans=0;
+    for(ll s=0;s<(1<<n1);s++){
+        ll neibor=(1<<n2)-1;
+        for(ll i=0;i<n1;i++){
+            if(s&(1<<i)){
+                neibor&=ab[i];
+            }
+        }
+        ans=max(ans,sum1[dp1[s]]+sum2[dp2[neibor]]);
+    }
+    cout<<ans<<'\n';
     return 0;
 }
 //maybe its multiset not set
+
