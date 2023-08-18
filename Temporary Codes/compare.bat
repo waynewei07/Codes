@@ -1,7 +1,7 @@
 @echo off
 :start
-B.exe > input.txt
-A.exe < input.txt > output.txt
+E.exe > input.txt
+D.exe < input.txt > output.txt
 right.exe < input.txt > output2.txt
 fc output.txt output2.txt
 if not errorlevel 1 goto start

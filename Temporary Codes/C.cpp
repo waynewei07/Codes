@@ -13,90 +13,48 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
+const int mxn=3e5+5;
+int bit[2][mxn];
+int n;
 
-const int mxn=1e5+5;
-int x[mxn];
-int y[mxn];
-set<pair<ll,ll>> S[11];
+void update(int id,int pos,int val){
+    for(;pos<=n;pos+=(pos&-pos)){
+        bit[id][pos]+=val;
+    }
+}
 
-struct DSU{
-    vector<int> e;
-    vector<vector<int>> belong;
-    DSU(int n){
-        e=vector<int>(n,-1);
-        belong.resize(n);
-        for(int i=0;i<n;i++){
-            belong[i].push_back(i);
-        }
+int query(int id,int pos){
+    int ans=0;
+    for(;pos;pos-=(pos&-pos)){
+        ans+=bit[id][pos];
     }
-    int sz(int x){
-        return -e[find(x)];
-    }
-    int find(int x){
-        return (e[x]<0?x:e[x]=find(e[x]));
-    }
-    bool unite(int a,int b){
-        a=find(a);
-        b=find(b);
-        if(a==b) return false;
-        if(e[a]>e[b]) swap(a,b);
-        e[a]+=e[b];
-        e[b]=a;
-        belong[a].insert(belong[a].end(),all(belong[b]));
-        return true;
-    }
-};
+    return ans;
+}
 
-int main() {_
-    int n;
+void solve(){
     cin>>n;
-    for(int i=0;i<n;i++){
-        cin>>x[i]>>y[i];
-        S[y[i]].insert({x[i],i});
-    }
-    ll ans=0;
-    DSU dsu(n);
-    while(dsu.sz(0)!=n){
-        vector<pair<ll,pair<ll,ll>>> vec;
-        for(int i=0;i<n;i++){
-            if(dsu.find(i)!=i) continue;
-            vector<int> tmp=dsu.belong[i];
-            for(auto v:tmp){
-                S[y[v]].erase({x[v],v});
-            }
-            pair<ll,ll> mn={(ll)1e18,-1};
-            for(auto v:tmp){
-                for(int i=0;i<=10;i++){
-                    if(S[i].empty()) continue;
-                    pair<ll,ll> mnn={1e9,-1};
-                    auto it=S[i].lower_bound({x[v],-1});
-                    if(it!=S[i].end()){
-                        mnn=min(mnn,{abs((*it).f-x[v]),(*it).s});
-                    }
-                    if(it!=S[i].begin()){
-                        it--;
-                        mnn=min(mnn,{abs(x[v]-(*it).f),(*it).s});
-                    }
-                    mn=min(mn,{mnn.f*mnn.f+1ll*(y[v]-i)*(y[v]-i),mnn.s});
-                }
-            }
-            if(mn.s!=-1){
-                vec.push_back({mn.f,{i,mn.s}});
-            }
-            for(auto v:tmp){
-                S[y[v]].insert({x[v],v});
-            }
+    fill(bit[0],bit[0]+n+1,0);
+    fill(bit[1],bit[1]+n+1,0);
+    int ans=0;
+    for(int i=1;i<=n;i++){
+        int x;
+        cin>>x;
+        int val=query(1,x);
+        int val2=query(0,x);
+        //cout<<val<<' '<<val2<<'\n';
+        if(val==0 and val2!=0){
+            ans++;
+            update(1,x,1);
         }
-        sort(all(vec));
-        for(auto v:vec){
-            if(dsu.unite(v.s.f,v.s.s)){
-                //cout<<v.s.f+1<<' '<<v.s.s+1<<' '<<v.f<<'\n';
-                ans+=v.f;
-            }
-        }
-        //cout<<'\n';
+        update(0,x,1);
     }
     cout<<ans<<'\n';
+}
+
+int main() {_
+    int t;
+    cin>>t;
+    while(t--) solve();
     return 0;
 }
 //maybe its multiset not set

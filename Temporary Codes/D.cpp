@@ -3,8 +3,8 @@
 using namespace std;
 #define ll long long
 #define pii pair<int,int>
-#define F first
-#define S second
+#define f first
+#define s second
 #define all(x) x.begin(),x.end()
 #define _ ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
 
@@ -13,131 +13,91 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-string arr[1501]1501];
+const int mxn=105;
+const int B=105*105;
+int dp[mxn][mxn*mxn*2];
 
-int desi = 0;
-int layer_id[41], anal_id[41];
-int now_id = 0;
-
-int line=0, ind=0;
-int des_line = 0;
-vector<string> print;
+void solve(){
+    string str;
+    cin>>str;
+    int n=(int)str.length();
+    int a=0,b=0;
+    for(int i=0;i<n;i++){
+        for(int j=i+1;j<n;j++){
+            if(str[i]=='0' and str[j]=='1') a++;
+            else if(str[i]=='1' and str[j]=='0') b++;
+        }
+    }
+    /*int goal=(a+b)/2;
+    vector<vector<int>> vec;
+    for(int i=0;i<n;i++){
+        vector<int> tmp;
+        for(int j=i+1;j<n;j++){
+            if(str[i]=='0' and str[j]=='1') tmp.push_back(-(j-i));
+            else if(str[i]=='1' and str[j]=='0') tmp.push_back((j-i));
+        }
+        if(!tmp.empty()) vec.push_back(tmp);
+    }
+    memset(dp,0x3f,sizeof(dp));
+    dp[B]=0;
+    for(auto vv:vec){
+        //cout<<v<<' ';
+        if(vv[0]>0){
+            for(int i=mxn*mxn*2-1;i>=vv[0];i--){
+                for(auto v:vv){
+                    if(i>=v) dp[i]=min(dp[i],dp[i-v]+1);
+                }
+            }
+        }
+        else{
+            for(int i=0;i-vv[0]<mxn*mxn*2;i++){
+                for(auto v:vv){
+                    if(i-v<mxn*mxn*2) dp[i]=min(dp[i],dp[i-v]+1);
+                }
+            }
+        }
+    }*/
+    memset(dp,0x3f,sizeof(dp));
+    for(int i=0;i<=n;i++) dp[i][B]=0;
+    for(int i=1;i<=n;i++){
+        if(str[i-1]!='1') continue;
+        for(int j=n;j>=1;j--){
+            for(int k=0;k<mxn*mxn*2;k++){
+                dp[j][k]=0x3f3f3f3f;
+            }
+            int val=j-i;
+            if(val>=0){
+                for(int k=mxn*mxn*2-1;k>=val;k--){
+                    dp[j][k]=min(dp[j][k],dp[j-1][k-val]+(str[j-1]=='0'));
+                }
+            }
+            else{
+                for(int k=0;k-val<mxn*mxn*2;k++){
+                    dp[j][k]=min(dp[j][k],dp[j-1][k-val]+(str[j-1]=='0'));
+                }
+            }
+        }
+        for(int j=1;j<=n;j++){
+            for(int k=0;k<mxn*mxn*2;k++){
+                dp[j][k]=min(dp[j][k],dp[j-1][k]);
+            }
+        }
+    }
+    //cout<<'\n';
+    //cout<<b-a<<'\n';
+    int mn=1e9;
+    for(int j=1;j<=n;j++){
+        cout<<dp[j][B+(b-a)/2]<<'\n';
+        mn=min(mn,dp[j][B+(b-a)/2]);
+    }
+    cout<<mn<<'\n';
+}
 
 int main() {_
-    string s;
-    int ind = -1;
-    bool ERR = false;
-
-    do{
-        line++;
-        getline(cin,s);
-
-        if(s == "end") break;
-
-        int i=0;
-
-        //cout<<s<<"\n";
-
-        while(s[i*2] == ' ' and s[i*2+1] == ' ') i++;
-        if((i > ind+1) || (s[i*2] == ' ')){
-                ERR = true; break;
-        }else if(i == ind+1){
-            layer_id[i] = anal_id[i] = now_id;
-        }else if(i < ind){
-            now_id = layer_id[i+1];
-        }
-
-        int j=s.length()-1;
-        while(s[j] == ' ') j--;
-
-        string s_trim = s.substr(i*2, j-i*2+1);
-
-
-        if(s_trim == "safe"){
-            string anal = "";
-            for(int j=0; j<i; j++) anal+="  ";
-            anal += "!!!Analyze(";
-
-            //cout<<anal_id[i]<<"\n";
-            //cout<<"cun\n";
-            //for(int j=0; j<now_id; j++) cout<<arr[j]<<" ";
-            //cout<<"\n";
-
-            for(int j=anal_id[i]; j<now_id; j++) anal+=arr[j]+",";
-            if(anal[anal.length()-1] == '(') anal.resize(anal.size()+1);
-            anal[anal.size()-1]=')';
-            print.push_back(anal);
-
-            anal_id[i] = now_id;
-
-        }else if(s_trim=="emptyline"){
-            if(des_line == 0) des_line = line;
-            else{
-                des_arr[desi++] = ((des_line == line-1)?"emptyline\n":("//Describe("+to_string(des_line+1)+","+to_string(line-1)+")\n"));
-
-                des_line = line;
-            }
-
-            print.push_back("");
-
-            now_id = 0;
-            ind = -1;
-
-            continue;
-
-
-        }else{
-            print.push_back(s);
-            arr[now_id++] = s_trim;
-        }
-
-        ind = i;
-
-
-    }while(s!="end");
-
-    if(ERR){
-        cout<<"ERR!\n";
-    }else{
-
-        if(des_line != 0){
-            des_arr[desi++] = ((des_line == line-1)?"emptyline\n":("//Describe("+to_string(des_line+1)+","+to_string(line-1)+")\n"));
-        }
-
-        int parse_id = 0;
-        for(int j=0; j<print.size(); j++){
-            if(print[j] == "") cout<<des_arr[parse_id++];
-            else cout<<print[j]<<"\n";
-        }
-
-    }
-
+    int t;
+    t=1;
+    while(t--) solve();
     return 0;
 }
 //maybe its multiset not set
-
-/*
-emptyline
-ln2
-ln3
-  ln4
-  ln5
-    ln6
-    ln7
-    ln8
-    safe
-    ln10
-    safe
-    ln12
-  ln13
-  ln14
-  safe
-ln16
-emptyline
-emptyline
-ln19
-  ln20
-safe
-end
-*/
 

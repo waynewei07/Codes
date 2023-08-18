@@ -14,7 +14,12 @@ void setIO(string s) {
 }
 
 int main() {_
-
+    for(int i=0;i<50;i++){
+        cout<<1;
+    }
+    for(int i=0;i<50;i++){
+        cout<<0;
+    }
     return 0;
 }
 //maybe its multiset not set

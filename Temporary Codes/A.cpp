@@ -13,47 +13,54 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-const int mxn=1e3+5;
-double p[mxn][mxn];
-double pre[mxn],pre2[mxn];
-
+void solve(){
+    string str;
+    cin>>str;
+    int n=(int)str.length();
+    string a,b;
+    for(int i=0;i<n;i++){
+        a+='(';
+    }
+    for(int i=0;i<n;i++){
+        a+=')';
+    }
+    for(int i=0;i<n;i++){
+        b+="()";
+    }
+    bool tf=true;
+    for(int i=0;i+n-1<2*n;i++){
+        if(a.substr(i,n)==str){
+            tf=false;
+            break;
+        }
+    }
+    if(tf){
+        cout<<"YES"<<'\n';
+        cout<<a<<'\n';
+        return;
+    }
+    tf=true;
+    for(int i=0;i+n-1<2*n;i++){
+        if(b.substr(i,n)==str){
+            tf=false;
+            break;
+        }
+    }
+    if(tf){
+        cout<<"YES"<<'\n';
+        cout<<b<<'\n';
+        return;
+    }
+    else{
+        cout<<"NO"<<'\n';
+        return;
+    }
+}
 
 int main() {_
-    int n,k;
-    cin>>n>>k;
-    n--;
-    p[0][0]=1;
-    for(int i=1;i<=n;i++){
-        p[i][0]=p[i-1][0]/2;
-        for(int j=1;j<=n;j++){
-            p[i][j]=(p[i-1][j-1]+p[i-1][j])/2;
-        }
-    }
-    pre[0]=p[n][0];
-    for(int i=1;i<=n;i++){
-        pre[i]=pre[i-1]+p[n][i];
-        pre2[i]=pre2[i-1]+p[n][i]*i;
-    }
-    double cur=0;
-    while(k>0){
-        int j=floor(cur+1e-9);
-        double a=pre[j];
-        double b=pre2[n]-pre2[j];
-        int l=1,r=k;
-        while(l<r){
-            int mid=(l+r+1)/2;
-            double ans=pow(a,mid)*cur+(pow(a,mid)-1)/(a-1)*b;
-            if(floor(ans)==j){
-                l=mid;
-            }
-            else{
-                r=mid-1;
-            }
-        }
-        cur=pow(a,l)*cur+(pow(a,l)-1)/(a-1)*b;
-        k-=l;
-    }
-    cout<<fixed<<setprecision(10)<<cur+1<<'\n';
+    int t;
+    cin>>t;
+    while(t--) solve();
     return 0;
 }
 //maybe its multiset not set

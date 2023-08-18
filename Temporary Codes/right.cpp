@@ -1,7 +1,8 @@
-#pragma GCC optimize("Ofast")
+//#pragma GCC optimize("O3")
 #include <bits/stdc++.h>
 using namespace std;
 #define ll long long
+#define int long long
 #define pii pair<int,int>
 #define f first
 #define s second
@@ -13,69 +14,59 @@ void setIO(string s) {
     freopen((s + ".out").c_str(), "w", stdout);
 }
 
-const int mxm=1005;
-const int mod=1e9+7;
-
-struct matrix{
-    ll num[mxm][mxm];
-    matrix(){
-        for(int i=0;i<mxm;i++){
-            for(int j=0;j<mxm;j++){
-                num[i][j]=0;
-            }
-        }
+struct DSU{
+    vector<int> e;
+    DSU(int n){
+        e=vector<int>(n,-1);
     }
-    void init(){
-        for(int i=0;i<mxm;i++){
-            num[i][i]=1;
-        }
+    int sz(int x){
+        return -e[find(x)];
     }
-    matrix operator*(matrix b){
-        matrix c;
-        for(int k=0;k<mxm;k++){
-            for(int i=0;i<mxm;i++){
-                for(int j=0;j<mxm;j++){
-                    c.num[i][k]=(c.num[i][k]+num[i][j]*b.num[j][k]%mod)%mod;
-                }
-            }
-        }
-        return c;
+    int find(int x){
+        return (e[x]<0?x:e[x]=find(e[x]));
+    }
+    bool unite(int a,int b){
+        a=find(a);
+        b=find(b);
+        if(a==b) return false;
+        if(e[a]>e[b]) swap(a,b);
+        e[a]+=e[b];
+        e[b]=a;
+        return true;
     }
 };
 
-matrix fpow(matrix base,ll k){
-    matrix ans;
-    ans.init();
-    while(k>0){
-        if(k&1) ans=ans*base;
-        base=base*base;
-        k/=2;
-    }
-    return ans;
-}
-
-int main() {_
-    ll n,m,k;
-    cin>>n>>m>>k;
-    vector<int> a(n);
-    for(int i=0;i<n;i++){
-        cin>>a[i];
-    }
-    matrix base;
-    for(int i=0;i<=m;i++){
-        base.num[i][0]=1;
-        for(int j=0;j<n;j++){
-            if(i*2+a[j]<=m){
-                base.num[i][i*2+a[j]]++;
+signed main() {_
+    int n,m;
+    cin>>n>>m;
+    vector<vector<int>> aa(n,vector<int>(n,0));
+    //memset(a,0,sizeof(a));
+    for(int i=0;i<m;i++){
+        int a,b,c,d;
+        cin>>a>>b>>c>>d;
+        int w;
+        cin>>w;
+        for(int i=a-1;i<=b-1;i++){
+            for(int j=c-1;j<=d-1;j++){
+                aa[i][j]+=w;
+                aa[j][i]+=w;
             }
         }
     }
-    matrix ans=fpow(base,k);
-    ll sum=0;
-    for(int i=0;i<=m;i++){
-        sum=(sum+ans.num[0][i])%mod;
+    vector<pair<int,pair<int,int>>> vec;
+    for(int i=0;i<n;i++){
+        for(int j=i+1;j<n;j++){
+            vec.push_back({aa[i][j],{i,j}});
+        }
     }
-    cout<<sum<<'\n';
+    sort(all(vec));
+    ll ans=0;
+    DSU dsu(n);
+    for(auto v:vec){
+        if(dsu.unite(v.s.f,v.s.s)) ans+=v.f;
+    }
+    cout<<ans;
     return 0;
 }
 //maybe its multiset not set
+
